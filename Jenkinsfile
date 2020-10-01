@@ -1,15 +1,29 @@
 pipeline {
     agent none 
     stages {
-        stage('Build') { 
+        stage('Build'){
             agent {
-                docker {
-                    image 'python:2-alpine' 
-                }
+              kubernetes {
+        label podlabel
+        yaml """
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: kaniko
+    image: ubuntu
+    imagePullPolicy: Always
+    command:
+    - /bin/bash
+    tdty: true
+  restartPolicy: Never
+
+"""
+   }
             }
             steps {
-                sh 'python -m py_compile sources/add2vals.py sources/calc.py' 
-                stash(name: 'compiled-results', includes: 'sources/*.py*') 
+                sh 'echo $PATH'
             }
         }
     }
