@@ -1,29 +1,29 @@
 pipeline {
-    agent none 
+    agent none
     stages {
-        stage('Build'){
+        stage('Build') {
             agent {
-              kubernetes {
-        label podlabel
-        yaml """
+                kubernetes {
+                    label podlabel
+                    yaml """
 kind: Pod
 metadata:
   name: jenkins-agent
 spec:
   containers:
-  - name: kaniko
-    image: ubuntu
+  - name: python
+    image: python:2-alpine
     imagePullPolicy: Always
     command:
-    - /bin/bash
-    tdty: true
+    - /bin/ash
+    tty: true
   restartPolicy: Never
-
 """
-   }
+                }
             }
             steps {
-                sh 'echo $PATH'
+                sh 'python --version'
+                stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
     }
